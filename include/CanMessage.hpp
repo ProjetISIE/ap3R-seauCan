@@ -19,9 +19,49 @@ class CanMessage {
     };
 
   private:
+
+    uint32_t Id;
+    canType Type;
+    canFormat Format;
+    uint8_t Dlc;
     std::array<uint8_t, MAX_DLC> _Data;
 
   public:
+
+    // default Constructeur
+    CanMessage() = default;
+    CanMessage(const CanMessage &) = default;
+    CanMessage(CanMessage&&) = default;
+    CanMessage& operator=(const CanMessage&) = default;
+    CanMessage& operator=(CanMessage&&) = default;
+
+    // default destructor
+    virtual ~CanMessage() = default;
+
+    // Constructor with parameter
+    CanMessage(canType type, canFormat format) : Type{type}, Format{format} {};
+    CanMessage(uint32_t id, canType type, canFormat format) : Id{id}, Type{type}, Format{format} {};
+    CanMessage(uint32_t id, canType type, canFormat format, uint8_t dlc) : Id{id}, Type{type}, Format{format} Dlc{dlc} {};
+
+    // GET+SET : Id
+    [[nodiscard]] uint32_t getId() const noexcept { return this->Id;};
+    void setId(uint32_t id) noexcept { this->Id = id;};
+
+    // GET+SET Type
+    [[nodiscard]] canType getType() const noexcept { return this->Type };
+    void setType(canType type) noexcept { this->Type = type;};
+
+    // GET+SET Format
+    [[nodiscard]] canFormat getFormat() const noexcept { return this->Format;};
+    void setFormat(canFormat format) noexcept { this->Format = format;};
+
+    // GET+SET Dlc
+    [[nodiscard]] uint8_t getDlc() const noexcept { return this->Dlc;};
+    void setDlc(uint8_t dlc) noexcept { this->Dlc = dlc;};
+
+    // Data
+    [[nodiscard]]std::array<uint8_t, MAX_DLC>& Data() { return &this->_Data;};
+
     /**
      * @brief Checks if CAN frame is valid (ID OK with format, DLC value…)
      * @return true if frame is valid, false otherwise

@@ -5,6 +5,19 @@
 constexpr uint8_t MAX_DLC = 8;
 
 class CanMessage {
+
+  public:
+
+    enum class canType {
+        DATA,
+        REMOTE,
+    };
+
+    enum class canFormat {
+        STD,
+        EXT,
+    };
+
   private:
     std::array<uint8_t, MAX_DLC> _Data;
 

@@ -7,12 +7,12 @@ Il a pour objectif de manipuler des trames CAN, de valider leur format et de fac
 Le projet inclut notamment le développement d’une classe `CanMessage`, permettant de représenter, valider et afficher des messages CAN, ainsi que des tests unitaires assurant sa fiabilité.
 
 ## Objectifs
-- [ ] Comprendre le fonctionnement d’un réseau CAN sous GNU/Linux
-- [ ] Configurer et utiliser un dongle CANUSB
-- [ ] Utiliser les outils SocketCAN (`candump`, `cansend`)
-- [ ] Concevoir une classe C++ représentant un message CAN
-- [ ] Valider le format des trames CAN
-- [ ] Tester le code à l’aide de tests unitaires
+- [x] Comprendre le fonctionnement d’un réseau CAN sous GNU/Linux
+- [x] Configurer et utiliser un dongle CANUSB
+- [x] Utiliser les outils SocketCAN (`candump`, `cansend`)
+- [x] Concevoir une classe C++ représentant un message CAN
+- [x] Valider le format des trames CAN
+- [x] Tester le code à l’aide de tests unitaires
 
 ## Prérequis
 - Système GNU/Linux
@@ -37,6 +37,27 @@ Le projet inclut notamment le développement d’une classe `CanMessage`, permet
 │   └── CanMessage.cpp
 │   CMakeLists.txt
 └── README.md
-
 ```
+
+## Classe CanMessage
+La classe CanMessage permet de représenter un message CAN et de fournir des services associés. 
+
+Voici le diagramme associé :
+
+<img width="676" height="370" alt="image" src="https://github.com/user-attachments/assets/956d2cbd-add7-4bbd-8cd1-158459160475" />
+
+
+## Compilation
+Exemple de compilation avec `cmake` :
+```Bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+## Matériel utilisé
+- Dongle CANUSB
+- Oscilloscope avec décodeur CAN (ex. PicoScope)
+- Nœuds CAN de test
 

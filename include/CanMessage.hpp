@@ -2,6 +2,9 @@
 #include <cstdint>
 #include <string>
 
+#ifndef __CAN_MESSAGE_HPP__
+#define __CAN_MESSAGE_HPP__
+
 constexpr uint8_t MAX_DLC = 8;
 
 class CanMessage {
@@ -85,3 +88,5 @@ class CanMessage {
      * */
     [[nodiscard]] std::string toString() const noexcept;
 };
+
+#endif

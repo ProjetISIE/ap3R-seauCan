@@ -25,7 +25,17 @@ Le projet inclut notamment le développement d’une classe `CanMessage`, permet
 
 ## Structure du projet
 ```StrucProjet
-├── Test
+├── include
+│   └── CanManager.hpp
+│   └── CanMessage.hpp
+│   └── slcanInterface.hpp
+├── src
+│   └── CanMessage.cpp
+├── test
+│   └── CMakeLists.txt
+│   └── CanManager.cpp
+│   └── CanMessage.cpp
+│   CMakeLists.txt
 └── README.md
 
 ```

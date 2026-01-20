@@ -46,16 +46,6 @@ Voici le diagramme associé :
 
 <img width="676" height="370" alt="image" src="https://github.com/user-attachments/assets/956d2cbd-add7-4bbd-8cd1-158459160475" />
 
-
-## Compilation
-Exemple de compilation avec `cmake` :
-```Bash
-mkdir build
-cd build
-cmake ..
-make
-```
-
 ## Matériel utilisé
 - Dongle CANUSB
 - Oscilloscope avec décodeur CAN (ex. PicoScope)

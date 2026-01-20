@@ -1,6 +1,7 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <format>
 
 #ifndef __CAN_MESSAGE_HPP__
 #define __CAN_MESSAGE_HPP__
@@ -46,29 +47,29 @@ class CanMessage {
         : Id{id}, Type{type}, Format{format}, Dlc{dlc} {};
 
     // GET+SET : Id
-    [[nodiscard]] uint32_t getId() const noexcept { return this->Id; };
+    [[nodiscard]] uint32_t getId() noexcept { return this->Id; };
     void setId(uint32_t id) noexcept { this->Id = id; };
 
     // GET+SET Type
-    [[nodiscard]] canType getType() const noexcept { return this->Type; };
+    [[nodiscard]] canType getType() noexcept { return this->Type; };
     void setType(canType type) noexcept { this->Type = type; };
 
     // GET+SET Format
-    [[nodiscard]] canFormat getFormat() const noexcept { return this->Format; };
+    [[nodiscard]] canFormat getFormat() noexcept { return this->Format; };
     void setFormat(canFormat format) noexcept { this->Format = format; };
 
     // GET+SET Dlc
-    [[nodiscard]] uint8_t getDlc() const noexcept { return this->Dlc; };
+    [[nodiscard]] uint8_t getDlc() noexcept { return this->Dlc; };
     void setDlc(uint8_t dlc) noexcept { this->Dlc = dlc; };
 
     // Data
-    [[nodiscard]] std::array<uint8_t, MAX_DLC>* Data() { return &this->_Data; };
+    [[nodiscard]] std::array<uint8_t, MAX_DLC>& Data() noexcept { return this->_Data; };
 
     /**
      * @brief Checks if CAN frame is valid (ID OK with format, DLC value…)
      * @return true if frame is valid, false otherwise
      */
-    [[nodiscard]] bool isMessageValid() const noexcept;
+    [[nodiscard]] bool isMessageValid()  noexcept;
 
     /**
      * @brief  Creates a std::string from frame characteristics
@@ -85,7 +86,7 @@ class CanMessage {
      *     Rq : if dlc=0 or if the frame is a remote one this field is empty
      *   Validity : "TRUE" if the frame is valid, "FALSE" if not
      * */
-    [[nodiscard]] std::string toString() const noexcept;
+    [[nodiscard]] std::string toString() noexcept;
 };
 
 #endif

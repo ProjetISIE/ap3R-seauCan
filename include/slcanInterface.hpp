@@ -1,17 +1,8 @@
 #include "CanManager.hpp"
-#include <stdexcept>
+#include "NoBitRateManagementException.hpp"
 
 const std::string defaultSlcanIfName{
     "slcan0"}; /**< Default Interface name for slcan */
-
-/**
- * @brief Exception thrown when bit rate management is not supported
- */
-class NoBitRateManagementException : public std::runtime_error {
-  public:
-    explicit NoBitRateManagementException()
-        : std::runtime_error("BitRate non manageable with this interface") {}
-};
 
 /**
  * @brief slcan interface class
@@ -20,6 +11,7 @@ class slcanInterface : public CanManager {
   private:
     const std::string ifname{defaultSlcanIfName}; /**< Interface name - to be
     used in real implementation */
+
   public:
     slcanInterface(); /**< Default constructor - to be implemented */
     explicit slcanInterface(std::string ifname_);   /**< Constructor taking
@@ -32,6 +24,7 @@ class slcanInterface : public CanManager {
     virtual ~slcanInterface(); /** to be implemented */
     explicit slcanInterface(bitRate_t br) noexcept = delete; /**< Deleted
     constructor - no bitRate constructor */
+
     /**
      * @brief Set bit rate (not supported)
      * @param br
@@ -40,6 +33,7 @@ class slcanInterface : public CanManager {
     virtual void setbitRate([[maybe_unused]] bitRate_t br) override {
         throw NoBitRateManagementException{};
     }
+
     /**
      * @brief Get bit rate (not supported)
      * @return bitRate_t
@@ -48,13 +42,15 @@ class slcanInterface : public CanManager {
     virtual bitRate_t getbitRate() override {
         throw NoBitRateManagementException{};
     }
+
     /**
      * @brief Emit a CAN message
      * @param msg
      */
     virtual void Emit(CanMessage& msg) override;
+
     /**
-     * @brief
+     * @brief Wait to receive a CAN message
      *
      * @param msg
      * @return true if a message was received and stored in msg

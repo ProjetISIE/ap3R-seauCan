@@ -19,6 +19,7 @@
       devShells = systems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [
+            can-utils
             clang-tools # Clang CLIs, including LSP
             cmake-language-server # Cmake LSP
             cppcheck # Static analysis

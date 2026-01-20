@@ -1,5 +1,6 @@
 #include "CanManager.hpp"
 #include "NoBitRateManagementException.hpp"
+#include <sys/socket.h>
 
 const std::string defaultSlcanIfName{
     "slcan0"}; /**< Default Interface name for slcan */
@@ -11,6 +12,7 @@ class slcanInterface : public CanManager {
   private:
     const std::string ifname{defaultSlcanIfName}; /**< Interface name - to be
     used in real implementation */
+    const std::uint32_t sock;
 
   public:
     slcanInterface(); /**< Default constructor - to be implemented */

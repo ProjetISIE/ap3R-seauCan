@@ -1,7 +1,6 @@
 #include <array>
 #include <cstdint>
 #include <string>
-#include <format>
 
 #ifndef __CAN_MESSAGE_HPP__
 #define __CAN_MESSAGE_HPP__
@@ -63,13 +62,15 @@ class CanMessage {
     void setDlc(uint8_t dlc) noexcept { this->Dlc = dlc; };
 
     // Data
-    [[nodiscard]] std::array<uint8_t, MAX_DLC>& Data() noexcept { return this->_Data; };
+    [[nodiscard]] std::array<uint8_t, MAX_DLC>& Data() noexcept {
+        return this->_Data;
+    };
 
     /**
      * @brief Checks if CAN frame is valid (ID OK with format, DLC value…)
      * @return true if frame is valid, false otherwise
      */
-    [[nodiscard]] bool isMessageValid()  noexcept;
+    [[nodiscard]] bool isMessageValid() noexcept;
 
     /**
      * @brief  Creates a std::string from frame characteristics

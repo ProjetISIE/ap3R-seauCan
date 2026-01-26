@@ -1,5 +1,8 @@
 #include "CanMessage.hpp"
 
+#ifndef __CANMANAGER_HPP__
+#define __CANMANAGER_HPP__
+
 enum class bitRate_t {
     KBPS10,   /**< 10 kb/s */
     KBPS20,   /**< 20 kb/s */
@@ -55,3 +58,5 @@ class CanManager {
     [[nodiscard]] virtual bool
     Receive(CanMessage& msg) = 0; /** Rx function - Pure virtual */
 };
+
+#endif // __CANMANAGER_HPP__

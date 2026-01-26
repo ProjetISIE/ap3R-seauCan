@@ -24,4 +24,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 # include(GNUInstallDirs)
 # install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+enable_testing()
 add_subdirectory(test)

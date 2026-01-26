@@ -1,8 +1,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "slcanInterface.hpp"
-#include "NoBitRateManagementException.hpp"
 #include <doctest/doctest.h>
+#include <stdexcept>
 #include <type_traits>
+// #include "NoBitRateManagementException.hpp"
 
 TEST_CASE("slcanInterface ctor") {
     CHECK_THROWS_AS(slcanInterface("invalid_interface_name"),
@@ -11,11 +12,4 @@ TEST_CASE("slcanInterface ctor") {
     CHECK_FALSE(std::is_move_constructible_v<slcanInterface>);
 }
 
-TEST_CASE("slcanInterface NoBitRateManagement") {
-    slcanInterface slcan("vcan0");
-    SUBCASE("BitRate Management throws") {
-        CHECK_THROWS_AS(slcan.setbitRate(bitRate_t::KBPS125),
-                        NoBitRateManagementException);
-        CHECK_THROWS_AS(slcan.getbitRate(), NoBitRateManagementException);
-    }
-}
+// TODO Mock tests

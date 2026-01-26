@@ -1,7 +1,6 @@
 #include "slcanInterface.hpp"
 #include <algorithm>
 #include <cerrno>
-#include <cstdint>
 #include <cstring>
 #include <format>
 #include <linux/can.h>
@@ -15,11 +14,11 @@
 #include <unistd.h>
 
 /**
- * @brief Helper function to open and bind a CAN socket
- * @param ifname Name of the CAN interface (e.g., "can0", "slcan0")
- * @return File descriptor of the opened socket
+ * @brief Opens and binds CAN socket with timeout
+ * @param ifname Interface name
+ * @return Socket file descriptor
  */
-static std::uint32_t openAndBindSocket(const std::string& ifname) {
+static int openAndBindSocket(const std::string& ifname) {
     int s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if (s < 0) throw std::runtime_error("Failed to open CAN socket");
 
@@ -38,7 +37,13 @@ static std::uint32_t openAndBindSocket(const std::string& ifname) {
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
 
-    if (bind(s, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+    // Set receive timeout to 100ms
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
+    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+
+    if (bind(s, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) < 0) {
         int err = errno;
         close(s);
         throw std::runtime_error(std::format("Failed to bind socket to {}: {}",
@@ -48,40 +53,37 @@ static std::uint32_t openAndBindSocket(const std::string& ifname) {
     return s;
 }
 
-void slcanInterface::receiveLoop() {
-    while (this->continueReception) {
-        can_frame frame;
+void slcanInterface::receiveLoop(std::stop_token stoken) {
+    while (!stoken.stop_requested()) {
+        struct can_frame frame;
         ssize_t nbytes = read(this->sock, &frame, sizeof(struct can_frame));
-        if (nbytes < 0) std::println("Wrong read from CAN socket");
-        else if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame)))
-            std::println("Incomplete CAN frame read");
-        else {
+        if (nbytes < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+            std::println(stderr, "Error reading from CAN socket: {}",
+                         strerror(errno));
+        } else if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame))) {
+            std::println(stderr, "Incomplete CAN frame read");
+        } else {
             std::lock_guard<std::mutex> lock(this->queueMutex);
             this->receiveQueue.push(frame);
         }
     }
 }
 
-/**< Default constructor */
 slcanInterface::slcanInterface()
     : ifname(defaultSlcanIfName), sock(openAndBindSocket(defaultSlcanIfName)),
-      th(std::jthread(&slcanInterface::receiveLoop, this)) {
+      th([this](std::stop_token st) { this->receiveLoop(st); }) {
     std::println("Socket opened with fd: {} for interface {}", this->sock,
                  this->ifname);
 }
 
-/**< Constructor taking interface name */
 slcanInterface::slcanInterface(std::string ifname_)
     : ifname(ifname_), sock(openAndBindSocket(ifname_)),
-      th(std::jthread(&slcanInterface::receiveLoop, this)) {
+      th([this](std::stop_token st) { this->receiveLoop(st); }) {
     std::println("Socket opened with fd: {} for interface {}", this->sock,
                  this->ifname);
 }
 
-/**
- * @brief Emit a CAN message
- * @param msg
- */
 void slcanInterface::Emit(CanMessage& msg) {
     struct can_frame frame;
     std::memset(&frame, 0, sizeof(frame));
@@ -95,20 +97,17 @@ void slcanInterface::Emit(CanMessage& msg) {
 
     frame.can_dlc = msg.getDlc();
     std::copy(msg.Data().begin(), msg.Data().end(), frame.data);
+
     if (write(this->sock, &frame, sizeof(struct can_frame)) !=
-        sizeof(struct can_frame))
+        sizeof(struct can_frame)) {
         throw std::runtime_error("Failed to write CAN frame to socket");
+    }
 }
 
-/**
- * @brief Wait to receive a CAN message
- * @param Object where to write the received message
- * @return true if a message was received and stored in msg
- * @return false if no message was received
- */
 bool slcanInterface::Receive(CanMessage& msg) {
     std::lock_guard<std::mutex> lock(this->queueMutex);
     if (this->receiveQueue.empty()) return false;
+
     auto received = this->receiveQueue.front();
     if (received.can_id & CAN_EFF_FLAG) {
         msg.setFormat(CanMessage::canFormat::EXT);
@@ -117,9 +116,11 @@ bool slcanInterface::Receive(CanMessage& msg) {
         msg.setFormat(CanMessage::canFormat::STD);
         msg.setId(received.can_id & CAN_SFF_MASK);
     }
+
     if (received.can_id & CAN_RTR_FLAG)
         msg.setType(CanMessage::canType::REMOTE);
     else msg.setType(CanMessage::canType::DATA);
+
     msg.setDlc(received.can_dlc);
     std::copy(std::begin(received.data), std::end(received.data),
               msg.Data().begin());
@@ -127,7 +128,6 @@ bool slcanInterface::Receive(CanMessage& msg) {
     return true;
 }
 
-/** Dtor */
 slcanInterface::~slcanInterface() {
     if (this->sock != 0) close(this->sock);
 }

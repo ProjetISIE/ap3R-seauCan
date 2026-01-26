@@ -2,10 +2,10 @@
 #include <cstdint>
 #include <string>
 
-#ifndef __CAN_MESSAGE_HPP__
-#define __CAN_MESSAGE_HPP__
+#ifndef CAN_MESSAGE_HPP
+#define CAN_MESSAGE_HPP
 
-constexpr uint8_t MAX_DLC = 8;
+constexpr uint8_t MAX_DLC{8};
 
 class CanMessage {
   public:
@@ -20,74 +20,64 @@ class CanMessage {
     };
 
   private:
-    uint32_t Id{0}; // WARNING Setter devrait rendre par défaut inutile
-    canType Type;
-    canFormat Format;
-    uint8_t Dlc{0}; // WARNING Setter devrait rendre par défaut inutile
-    std::array<uint8_t, MAX_DLC> _Data{
-        0}; // WARNING Setter devrait rendre par défaut inutile
+    uint32_t Id{0};
+    canType Type{canType::DATA};
+    canFormat Format{canFormat::STD};
+    uint8_t Dlc{0};
+    std::array<uint8_t, MAX_DLC> _Data{0};
 
   public:
-    // default Constructeur
     CanMessage() = default;
     CanMessage(const CanMessage&) = default;
     CanMessage(CanMessage&&) = default;
     CanMessage& operator=(const CanMessage&) = default;
     CanMessage& operator=(CanMessage&&) = default;
-
-    // default destructor
     virtual ~CanMessage() = default;
 
-    // Constructor with parameter
-    CanMessage(canType type, canFormat format) : Type{type}, Format{format} {};
-    CanMessage(uint32_t id, canType type, canFormat format)
-        : Id{id}, Type{type}, Format{format} {};
-    CanMessage(uint32_t id, canType type, canFormat format, uint8_t dlc)
-        : Id{id}, Type{type}, Format{format}, Dlc{dlc} {};
+    CanMessage(canType type_, canFormat format_)
+        : Type{type_}, Format{format_} {}
+    CanMessage(uint32_t id_, canType type_, canFormat format_)
+        : Id{id_}, Type{type_}, Format{format_} {}
+    CanMessage(uint32_t id_, canType type_, canFormat format_, uint8_t dlc_)
+        : Id{id_}, Type{type_}, Format{format_}, Dlc{dlc_} {}
 
-    // GET+SET : Id
-    [[nodiscard]] uint32_t getId() noexcept { return this->Id; };
-    void setId(uint32_t id) noexcept { this->Id = id; };
+    [[nodiscard]] uint32_t getId() const noexcept { return this->Id; }
+    void setId(uint32_t id_) noexcept { this->Id = id_; }
 
-    // GET+SET Type
-    [[nodiscard]] canType getType() noexcept { return this->Type; };
-    void setType(canType type) noexcept { this->Type = type; };
+    [[nodiscard]] canType getType() const noexcept { return this->Type; }
+    void setType(canType type_) noexcept { this->Type = type_; }
 
-    // GET+SET Format
-    [[nodiscard]] canFormat getFormat() noexcept { return this->Format; };
-    void setFormat(canFormat format) noexcept { this->Format = format; };
+    [[nodiscard]] canFormat getFormat() const noexcept { return this->Format; }
+    void setFormat(canFormat format_) noexcept { this->Format = format_; }
 
-    // GET+SET Dlc
-    [[nodiscard]] uint8_t getDlc() noexcept { return this->Dlc; };
-    void setDlc(uint8_t dlc) noexcept { this->Dlc = dlc; };
+    [[nodiscard]] uint8_t getDlc() const noexcept { return this->Dlc; }
+    void setDlc(uint8_t dlc_) noexcept { this->Dlc = dlc_; }
 
-    // Data
     [[nodiscard]] std::array<uint8_t, MAX_DLC>& Data() noexcept {
         return this->_Data;
-    };
+    }
+    [[nodiscard]] const std::array<uint8_t, MAX_DLC>& Data() const noexcept {
+        return this->_Data;
+    }
 
     /**
      * @brief Checks if CAN frame is valid (ID OK with format, DLC value…)
-     * @return true if frame is valid, false otherwise
+     * @return true if frame valid, false otherwise
      */
-    [[nodiscard]] bool isMessageValid() noexcept;
+    [[nodiscard]] bool isMessageValid() const noexcept;
 
     /**
-     * @brief  Creates a std::string from frame characteristics
+     * @brief Creates std::string from frame characteristics
      * @return std::string
-     *
-     * Std::string format : format;type;id;dlc;data;validity
-     *   format : "STD" or "EXT"
-     *   type : "DATA" or "RMT"
-     *   id : 3 (std frame) or 8 (ext frame) hexadecimal digits representig the
-           frame ID
-     *   dlc : dlc value (decimal) data : each data byte is represented
-     *     as a 2 digit hex value
-     *     - No separators between data bytes
-     *     Rq : if dlc=0 or if the frame is a remote one this field is empty
-     *   Validity : "TRUE" if the frame is valid, "FALSE" if not
-     * */
-    [[nodiscard]] std::string toString() noexcept;
+     * Format: format;type;id;dlc;data;validity
+     *   format: "STD" or "EXT"
+     *   type: "DATA" or "RMT"
+     *   id: 3 (std) or 8 (ext) hex digits
+     *   dlc: decimal value
+     *   data: 2 hex digits per byte, no separators (empty if dlc=0 or remote)
+     *   validity: "TRUE" or "FALSE"
+     */
+    [[nodiscard]] std::string toString() const noexcept;
 };
 
-#endif
+#endif // CAN_MESSAGE_HPP

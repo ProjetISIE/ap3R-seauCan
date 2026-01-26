@@ -3,50 +3,48 @@
 #include <linux/can.h>
 #include <mutex>
 #include <queue>
-#include <sys/socket.h>
+#include <string>
 #include <thread>
 
 const std::string defaultSlcanIfName{
     "slcan0"}; /**< Default Interface name for slcan */
-
 /**
  * @brief slcan interface class
  */
 class slcanInterface : public CanManager {
   private:
-    const std::string ifname{defaultSlcanIfName}; /**< Interface name - to be
-    used in real implementation */
-    const std::uint32_t sock;
-    const std::jthread th;
-    bool continueReception{true};
+    const std::string ifname{
+        defaultSlcanIfName}; /**< Interface name - to be used in real
+                                implementation */
+    const int sock;
+    std::jthread th;
     std::queue<can_frame> receiveQueue;
     mutable std::mutex queueMutex;
 
   private:
-    void receiveLoop();
+    void receiveLoop(std::stop_token stoken);
 
   public:
     slcanInterface(); /**< Default constructor - to be implemented */
-    explicit slcanInterface(std::string ifname_);   /**< Constructor taking
-      interface name   (delegated ctor) */
-    slcanInterface(const slcanInterface&) = delete; /**< non -copyable */
-    slcanInterface(slcanInterface&&) = delete;      /**< non -movable */
+    explicit slcanInterface(
+        std::string
+            ifname_); /**< Constructor taking interface name (delegated ctor) */
+    slcanInterface(const slcanInterface&) = delete; /**< non-copyable */
+    slcanInterface(slcanInterface&&) = delete;      /**< non-movable */
     slcanInterface&
-    operator=(const slcanInterface&) = delete;            /**< non -copyable */
-    slcanInterface& operator=(slcanInterface&&) = delete; /**< non -movable */
+    operator=(const slcanInterface&) = delete;            /**< non-copyable */
+    slcanInterface& operator=(slcanInterface&&) = delete; /**< non-movable */
     virtual ~slcanInterface(); /** to be implemented */
-    explicit slcanInterface(bitRate_t br) noexcept = delete; /**< Deleted
-    constructor - no bitRate constructor */
-
+    explicit slcanInterface(bitRate_t br) noexcept =
+        delete; /**< Deleted constructor - no bitRate constructor */
     /**
      * @brief Set bit rate (not supported)
-     * @param br
+     * @param br Bit rate
      * @throws NoBitRateManagementException
      */
     virtual void setbitRate([[maybe_unused]] bitRate_t br) override {
         throw NoBitRateManagementException{};
     }
-
     /**
      * @brief Get bit rate (not supported)
      * @return bitRate_t
@@ -55,17 +53,14 @@ class slcanInterface : public CanManager {
     virtual bitRate_t getbitRate() override {
         throw NoBitRateManagementException{};
     }
-
     /**
      * @brief Emit a CAN message
-     * @param msg
+     * @param msg CAN message to emit
      */
     virtual void Emit(CanMessage& msg) override;
-
     /**
-     * @brief Wait to receive a CAN message
-     *
-     * @param msg
+     * @brief Get oldest received CAN message
+     * @param msg where to store received CAN message
      * @return true if a message was received and stored in msg
      * @return false if no message was received
      */

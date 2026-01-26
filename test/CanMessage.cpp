@@ -36,8 +36,8 @@ TEST_CASE("CanMessage 4 args ctor") {
     CHECK_EQ(msg.getDlc(), MAX_DLC);
 }
 
-TEST_CASE("CanMessage toString()") {
-    std::println("Testing CanMessage::Data()");
+TEST_CASE("CanMessage getData()") {
+    std::println("Testing CanMessage::getData()");
     CanMessage msg = CanMessage(1, CanMessage::canType::DATA,
                                 CanMessage::canFormat::STD, MAX_DLC);
     CHECK_EQ(msg.Data(), std::array<uint8_t, MAX_DLC>());
@@ -61,5 +61,5 @@ TEST_CASE("CanMessage toString()") {
     CanMessage msg =
         CanMessage(1, CanMessage::canType::DATA, CanMessage::canFormat::STD, 4);
     CHECK_EQ(msg.getDlc(), 4);
-    CHECK_EQ(msg.toString(), "STD;DATA;1;4;0000;TRUE");
+    CHECK_EQ(msg.toString(), "STD;DATA;1;4;00000000;TRUE");
 }

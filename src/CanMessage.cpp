@@ -2,25 +2,16 @@
 #include <format>
 
 bool CanMessage::isMessageValid() noexcept {
-    // Verif Format
     switch (this->getFormat()) {
     case CanMessage::canFormat::STD:
-        // Verif ID
-        if (this->getId() > 0x3FF) {
-            return false;
-        }
+        if (this->getId() > 0x3FF) return false; // Verif ID selon format
         break;
     case CanMessage::canFormat::EXT:
-        // Verif ID
-        if (this->getId() > 0x1FFFFFFF) {
-            return false;
-        }
+        if (this->getId() > 0x1FFFFFFF) return false; // Verif ID selon format
         break;
-    default: return false; break;
+    default: return false;
     }
-    if (this->getDlc() > 8) {
-        return false;
-    }
+    if (this->getDlc() > 8) return false;
     return true;
 };
 
@@ -39,14 +30,10 @@ std::string CanMessage::toString() noexcept {
     case CanMessage::canType::REMOTE: type = "RMT"; break;
     default: type = "TypeError"; break;
     }
-
     std::string data_hex;
     for (uint8_t i = 0; i < this->getDlc() && i < MAX_DLC; ++i)
         data_hex += std::format("{:0x}", this->Data()[i]);
-
-    out = std::format("{};{};{:0x};{:0d};{};{}", form, type, this->getId(),
-                      this->getDlc(), data_hex,
-                      (this->isMessageValid() ? "TRUE" : "FALSE"));
-
-    return out;
+    return std::format("{};{};{:0x};{:0d};{};{}", form, type, this->getId(),
+                       this->getDlc(), data_hex,
+                       (this->isMessageValid() ? "TRUE" : "FALSE"));
 };

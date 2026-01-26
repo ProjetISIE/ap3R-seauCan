@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <thread>
 #include <unistd.h>
 
 /**
@@ -47,16 +48,29 @@ static std::uint32_t openAndBindSocket(const std::string& ifname) {
     return s;
 }
 
+void slcanInterface::receiveLoop() {
+    while (this->continueReception) {
+        can_frame frame;
+        ssize_t nbytes = read(this->sock, &frame, sizeof(struct can_frame));
+        if (nbytes < 0) std::println("Wrong read from CAN socket");
+        else if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame)))
+            std::println("Incomplete CAN frame read");
+        else this->receiveQueue.push(frame);
+    }
+}
+
 /**< Default constructor */
 slcanInterface::slcanInterface()
-    : ifname(defaultSlcanIfName), sock(openAndBindSocket(defaultSlcanIfName)) {
+    : ifname(defaultSlcanIfName), sock(openAndBindSocket(defaultSlcanIfName)),
+      th(std::jthread(&slcanInterface::receiveLoop, this)) {
     std::println("Socket opened with fd: {} for interface {}", this->sock,
                  this->ifname);
 }
 
 /**< Constructor taking interface name */
 slcanInterface::slcanInterface(std::string ifname_)
-    : ifname(ifname_), sock(openAndBindSocket(ifname_)) {
+    : ifname(ifname_), sock(openAndBindSocket(ifname_)),
+      th(std::jthread(&slcanInterface::receiveLoop, this)) {
     std::println("Socket opened with fd: {} for interface {}", this->sock,
                  this->ifname);
 }
@@ -85,32 +99,27 @@ void slcanInterface::Emit(CanMessage& msg) {
 
 /**
  * @brief Wait to receive a CAN message
- * @param msg
+ * @param Object where to write the received message
  * @return true if a message was received and stored in msg
  * @return false if no message was received
  */
 bool slcanInterface::Receive(CanMessage& msg) {
-    struct can_frame frame;
-    ssize_t nbytes = read(this->sock, &frame, sizeof(struct can_frame));
-
-    if (nbytes < 0) return false;
-
-    if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame))) return false;
-
-    if (frame.can_id & CAN_EFF_FLAG) {
+    if (this->receiveQueue.empty()) return false;
+    auto received = this->receiveQueue.front();
+    if (received.can_id & CAN_EFF_FLAG) {
         msg.setFormat(CanMessage::canFormat::EXT);
-        msg.setId(frame.can_id & CAN_EFF_MASK);
+        msg.setId(received.can_id & CAN_EFF_MASK);
     } else {
         msg.setFormat(CanMessage::canFormat::STD);
-        msg.setId(frame.can_id & CAN_SFF_MASK);
+        msg.setId(received.can_id & CAN_SFF_MASK);
     }
-
-    if (frame.can_id & CAN_RTR_FLAG) msg.setType(CanMessage::canType::REMOTE);
+    if (received.can_id & CAN_RTR_FLAG)
+        msg.setType(CanMessage::canType::REMOTE);
     else msg.setType(CanMessage::canType::DATA);
-
-    msg.setDlc(frame.can_dlc);
-    std::copy(std::begin(frame.data), std::end(frame.data), msg.Data().begin());
-
+    msg.setDlc(received.can_dlc);
+    std::copy(std::begin(received.data), std::end(received.data),
+              msg.Data().begin());
+    this->receiveQueue.pop();
     return true;
 }
 

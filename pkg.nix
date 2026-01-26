@@ -6,10 +6,10 @@
   stdenv,
 }:
 stdenv.mkDerivation {
-  pname = "ap3";
+  pname = "ap3Can";
   version = "0.0.0";
   src = self;
-  # doCheck = true; # Enable tests
+  doCheck = true; # Auto test
   nativeBuildInputs = [
     cmake # Modern build tool
     doctest # Testing framework

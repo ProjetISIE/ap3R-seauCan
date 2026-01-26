@@ -70,25 +70,21 @@ void slcanInterface::Emit(CanMessage& msg) {
     std::memset(&frame, 0, sizeof(frame));
 
     frame.can_id = msg.getId();
-    if (msg.getFormat() == CanMessage::canFormat::EXT) {
+    if (msg.getFormat() == CanMessage::canFormat::EXT)
         frame.can_id |= CAN_EFF_FLAG;
-    }
-    if (msg.getType() == CanMessage::canType::REMOTE) {
+
+    if (msg.getType() == CanMessage::canType::REMOTE)
         frame.can_id |= CAN_RTR_FLAG;
-    }
 
     frame.can_dlc = msg.getDlc();
     std::copy(msg.Data().begin(), msg.Data().end(), frame.data);
-
     if (write(this->sock, &frame, sizeof(struct can_frame)) !=
-        sizeof(struct can_frame)) {
+        sizeof(struct can_frame))
         throw std::runtime_error("Failed to write CAN frame to socket");
-    }
 }
 
 /**
  * @brief Wait to receive a CAN message
- *
  * @param msg
  * @return true if a message was received and stored in msg
  * @return false if no message was received
@@ -97,13 +93,9 @@ bool slcanInterface::Receive(CanMessage& msg) {
     struct can_frame frame;
     ssize_t nbytes = read(this->sock, &frame, sizeof(struct can_frame));
 
-    if (nbytes < 0) {
-        return false;
-    }
+    if (nbytes < 0) return false;
 
-    if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame))) {
-        return false;
-    }
+    if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame))) return false;
 
     if (frame.can_id & CAN_EFF_FLAG) {
         msg.setFormat(CanMessage::canFormat::EXT);
@@ -113,11 +105,8 @@ bool slcanInterface::Receive(CanMessage& msg) {
         msg.setId(frame.can_id & CAN_SFF_MASK);
     }
 
-    if (frame.can_id & CAN_RTR_FLAG) {
-        msg.setType(CanMessage::canType::REMOTE);
-    } else {
-        msg.setType(CanMessage::canType::DATA);
-    }
+    if (frame.can_id & CAN_RTR_FLAG) msg.setType(CanMessage::canType::REMOTE);
+    else msg.setType(CanMessage::canType::DATA);
 
     msg.setDlc(frame.can_dlc);
     std::copy(std::begin(frame.data), std::end(frame.data), msg.Data().begin());
@@ -125,9 +114,7 @@ bool slcanInterface::Receive(CanMessage& msg) {
     return true;
 }
 
-/** dtor */
+/** Dtor */
 slcanInterface::~slcanInterface() {
-    if (this->sock != 0) {
-        close(this->sock);
-    }
+    if (this->sock != 0) close(this->sock);
 }

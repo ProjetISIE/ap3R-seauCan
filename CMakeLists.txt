@@ -19,10 +19,11 @@ add_compile_options(
 
 add_library(${PROJECT_NAME} STATIC src/CanMessage.cpp src/slcanInterface.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
-# add_executable(${PROJECT_NAME} src/main.cpp)
-# target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME})
-# include(GNUInstallDirs)
-# install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_executable(can_app src/main.cpp)
+target_link_libraries(can_app PRIVATE ${PROJECT_NAME})
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 enable_testing()
 add_subdirectory(test)

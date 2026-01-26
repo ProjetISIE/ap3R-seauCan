@@ -16,7 +16,7 @@ TEST_CASE("CanMessage 2 arg ctor") {
     CHECK_EQ(msg.getFormat(), CanMessage::canFormat::EXT);
 }
 
-TEST_CASE("CanMessage 4 args ctor") {
+TEST_CASE("CanMessage 3 args ctor") {
     std::println("Testing CanMessage() 3 args ctor");
     CanMessage msg =
         CanMessage(1, CanMessage::canType::DATA, CanMessage::canFormat::STD);
@@ -26,8 +26,8 @@ TEST_CASE("CanMessage 4 args ctor") {
     CHECK_EQ(msg.getDlc(), 0);
 }
 
-TEST_CASE("CanMessage 5 args ctor") {
-    std::println("Testing CanMessage() 5 args ctor");
+TEST_CASE("CanMessage 4 args ctor") {
+    std::println("Testing CanMessage() 4 args ctor");
     CanMessage msg = CanMessage(1, CanMessage::canType::DATA,
                                 CanMessage::canFormat::STD, MAX_DLC);
     CHECK_EQ(msg.getType(), CanMessage::canType::DATA);

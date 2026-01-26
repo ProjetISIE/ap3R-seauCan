@@ -1,6 +1,7 @@
 #include "slcanInterface.hpp"
 #include <algorithm>
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include <format>
 #include <linux/can.h>
@@ -10,7 +11,6 @@
 #include <stdexcept>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 /**
@@ -18,11 +18,9 @@
  * @param ifname Name of the CAN interface (e.g., "can0", "slcan0")
  * @return File descriptor of the opened socket
  */
-static int openAndBindSocket(const std::string& ifname) {
+static std::uint32_t openAndBindSocket(const std::string& ifname) {
     int s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-    if (s < 0) {
-        throw std::runtime_error("Failed to open CAN socket");
-    }
+    if (s < 0) throw std::runtime_error("Failed to open CAN socket");
 
     struct ifreq ifr;
     std::strncpy(ifr.ifr_name, ifname.c_str(), IFNAMSIZ - 1);
@@ -30,8 +28,8 @@ static int openAndBindSocket(const std::string& ifname) {
     if (ioctl(s, SIOCGIFINDEX, &ifr) < 0) {
         int err = errno;
         close(s);
-        throw std::runtime_error(
-            std::format("Failed to find interface {}: {}", ifname, strerror(err)));
+        throw std::runtime_error(std::format("Failed to find interface {}: {}",
+                                             ifname, strerror(err)));
     }
 
     struct sockaddr_can addr;
@@ -42,8 +40,8 @@ static int openAndBindSocket(const std::string& ifname) {
     if (bind(s, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
         int err = errno;
         close(s);
-        throw std::runtime_error(
-            std::format("Failed to bind socket to {}: {}", ifname, strerror(err)));
+        throw std::runtime_error(std::format("Failed to bind socket to {}: {}",
+                                             ifname, strerror(err)));
     }
 
     return s;

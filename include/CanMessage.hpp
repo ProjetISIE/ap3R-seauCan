@@ -8,7 +8,6 @@
 constexpr uint8_t MAX_DLC = 8;
 
 class CanMessage {
-
   public:
     enum class canType {
         DATA,
@@ -21,11 +20,12 @@ class CanMessage {
     };
 
   private:
-    uint32_t Id;
+    uint32_t Id{0}; // WARNING Setter devrait rendre par défaut inutile
     canType Type;
     canFormat Format;
-    uint8_t Dlc;
-    std::array<uint8_t, MAX_DLC> _Data;
+    uint8_t Dlc{0}; // WARNING Setter devrait rendre par défaut inutile
+    std::array<uint8_t, MAX_DLC> _Data{
+        0}; // WARNING Setter devrait rendre par défaut inutile
 
   public:
     // default Constructeur

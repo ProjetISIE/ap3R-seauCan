@@ -17,10 +17,10 @@ add_compile_options(
   # -Wconversion -Werror
 )
 
-add_library(${PROJECT_NAME}lib STATIC src/CanMessage.cpp src/slcanInterface.cpp)
-target_include_directories(${PROJECT_NAME}lib PUBLIC ${CMAKE_SOURCE_DIR}/include)
+add_library(${PROJECT_NAME} STATIC src/CanMessage.cpp src/slcanInterface.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 # add_executable(${PROJECT_NAME} src/main.cpp)
-# target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}lib)
+# target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME})
 # include(GNUInstallDirs)
 # install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

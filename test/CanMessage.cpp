@@ -58,8 +58,8 @@ TEST_CASE("CanMessage isMessageValid()") {
 
 TEST_CASE("CanMessage toString()") {
     std::println("Testing CanMessage::toString()");
-    CanMessage msg = CanMessage(1, CanMessage::canType::DATA,
-                                CanMessage::canFormat::STD, MAX_DLC);
-    // TODO à voir selon implémentation
-    CHECK_EQ(msg.toString(), "ID: 1, Type: DATA, Format: STD, DLC: 8");
+    CanMessage msg =
+        CanMessage(1, CanMessage::canType::DATA, CanMessage::canFormat::STD, 4);
+    CHECK_EQ(msg.getDlc(), 4);
+    CHECK_EQ(msg.toString(), "STD;DATA;1;4;0000;TRUE");
 }

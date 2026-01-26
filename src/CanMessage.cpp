@@ -42,7 +42,7 @@ std::string CanMessage::toString() noexcept {
 
     std::string data_hex;
     for (uint8_t i = 0; i < this->getDlc() && i < MAX_DLC; ++i)
-        data_hex += std::format("{:02x}", this->Data()[i]);
+        data_hex += std::format("{:0x}", this->Data()[i]);
 
     out = std::format("{};{};{:0x};{:0d};{};{}", form, type, this->getId(),
                       this->getDlc(), data_hex,

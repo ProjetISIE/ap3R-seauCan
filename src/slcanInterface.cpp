@@ -58,8 +58,12 @@ void slcanInterface::receiveLoop(std::stop_token stoken) {
         struct can_frame frame;
         ssize_t nbytes = read(this->sock, &frame, sizeof(struct can_frame));
         if (nbytes < 0) {
+            int err = errno;
+            if (stoken.stop_requested()) break;                // Shutting down
+            if (err == EAGAIN || err == EWOULDBLOCK) continue; // Loop again
+            if (err == EBADF) break; // Socket closed, exit
             std::println(stderr, "Error reading from CAN socket: {}",
-                         strerror(errno));
+                         strerror(err));
         } else if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame))) {
             std::println(stderr, "Incomplete CAN frame read");
         } else {
@@ -129,5 +133,6 @@ bool slcanInterface::Receive(CanMessage& msg) {
 }
 
 slcanInterface::~slcanInterface() {
+    this->th.request_stop();
     if (this->sock != 0) close(this->sock);
 }

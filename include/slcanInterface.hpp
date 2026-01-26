@@ -1,6 +1,7 @@
 #include "CanManager.hpp"
 #include "NoBitRateManagementException.hpp"
 #include <linux/can.h>
+#include <mutex>
 #include <queue>
 #include <sys/socket.h>
 #include <thread>
@@ -19,6 +20,7 @@ class slcanInterface : public CanManager {
     const std::jthread th;
     bool continueReception{true};
     std::queue<can_frame> receiveQueue;
+    mutable std::mutex queueMutex;
 
   private:
     void receiveLoop();

@@ -55,7 +55,10 @@ void slcanInterface::receiveLoop() {
         if (nbytes < 0) std::println("Wrong read from CAN socket");
         else if (nbytes < static_cast<ssize_t>(sizeof(struct can_frame)))
             std::println("Incomplete CAN frame read");
-        else this->receiveQueue.push(frame);
+        else {
+            std::lock_guard<std::mutex> lock(this->queueMutex);
+            this->receiveQueue.push(frame);
+        }
     }
 }
 
@@ -104,6 +107,7 @@ void slcanInterface::Emit(CanMessage& msg) {
  * @return false if no message was received
  */
 bool slcanInterface::Receive(CanMessage& msg) {
+    std::lock_guard<std::mutex> lock(this->queueMutex);
     if (this->receiveQueue.empty()) return false;
     auto received = this->receiveQueue.front();
     if (received.can_id & CAN_EFF_FLAG) {

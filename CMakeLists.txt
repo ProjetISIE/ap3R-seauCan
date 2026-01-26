@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(
-  ap3
+  ap3Can
   VERSION 0.0.0
   LANGUAGES CXX)
 
@@ -17,13 +17,13 @@ add_compile_options(
   # -Wconversion -Werror
 )
 
-add_library(lib${PROJECT_NAME} STATIC src/CanMessage.cpp src/slcanInterface.cpp)
-target_include_directories(lib${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
-
-add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE lib${PROJECT_NAME})
+add_library(${PROJECT_NAME} STATIC src/CanMessage.cpp src/slcanInterface.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+set(MAIN ${PROJECT_NAME}Client)
+add_executable(${MAIN} src/main.cpp)
+target_link_libraries(${MAIN} PRIVATE ${PROJECT_NAME})
 include(GNUInstallDirs)
-install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ${MAIN} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 enable_testing()
 add_subdirectory(test)

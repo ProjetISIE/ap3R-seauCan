@@ -1,5 +1,5 @@
 .direnv/
 build/
 .cache/
-
+result
 *.pdf

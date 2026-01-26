@@ -22,6 +22,7 @@
             can-utils
             clang-tools # Clang CLIs, including LSP
             cmake-language-server # Cmake LSP
+            cmake-format
             cppcheck # Static analysis
             doxygen # Documentation generator
             cppcheck # Static analysis

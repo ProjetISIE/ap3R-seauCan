@@ -1,3 +1,4 @@
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "CanMessage.hpp"
 #include <doctest/doctest.h>
 #include <print>
@@ -41,7 +42,7 @@ TEST_CASE("CanMessage toString()") {
                                 CanMessage::canFormat::STD, MAX_DLC);
     CHECK_EQ(msg.Data(), std::array<uint8_t, MAX_DLC>());
     std::array<uint8_t, MAX_DLC> data = {1, 2, 3, 4, 5, 6, 7, 8};
-    *msg.Data() = data;
+    msg.Data() = data;
     CHECK_EQ(msg.Data(), data);
 }
 

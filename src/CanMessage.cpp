@@ -1,4 +1,5 @@
 #include "../include/CanMessage.hpp"
+#include <format>
 
 bool CanMessage::isMessageValid() noexcept {
     // Verif Format
@@ -39,8 +40,13 @@ std::string CanMessage::toString() noexcept {
     default: type = "TypeError"; break;
     }
 
-    out = std::format("{};{};{:0x};{:0d};{:0x};{}", form, type, this->getId(),
-                      this->getDlc(), this->Data(),
+    std::string data_hex;
+    for (uint8_t i = 0; i < this->getDlc() && i < MAX_DLC; ++i) {
+        data_hex += std::format("{:02x}", this->Data()[i]);
+    }
+
+    out = std::format("{};{};{:0x};{:0d};{};{}", form, type, this->getId(),
+                      this->getDlc(), data_hex,
                       (this->isMessageValid() ? "TRUE" : "FALSE"));
 
     return out;
